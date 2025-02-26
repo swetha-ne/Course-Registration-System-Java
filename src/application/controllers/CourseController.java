@@ -1,94 +1,58 @@
 package application.controllers;
 
+import application.DBConnection;
+import application.models.Course;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class CourseController {
+    @FXML private TextField titleField;
+    @FXML private TextField creditsField;
+    @FXML private TableView<Course> courseTable;
+    @FXML private TableColumn<Course, String> titleColumn;
+    @FXML private TableColumn<Course, Integer> creditsColumn;
+
+    private ObservableList<Course> courses = FXCollections.observableArrayList();
 
     @FXML
-    private TextField courseIdField, titleField, creditHoursField, departmentField, prerequisitesField,
-            maxEnrollmentField;
+    public void initialize() {
+        loadCourses();
+    }
 
-    private Connection connection;
-
-    // Initialize Database Connection
-    public CourseController() {
-        try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/course_registration", "root",
-                    "yourpassword");
-        } catch (SQLException e) {
+    private void loadCourses() {
+        courses.clear();
+        String query = "SELECT * FROM courses";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                courses.add(new Course(rs.getInt("id"), rs.getString("title"), rs.getInt("credits")));
+            }
+            courseTable.setItems(courses);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @FXML
     private void addCourse() {
-        try {
-            String query = "INSERT INTO courses (course_id, title, credit_hours, department, prerequisites, max_enrollment) VALUES (?, ?, ?, ?, ?, ?)";
-            PreparedStatement stmt = connection.prepareStatement(query);
-            stmt.setString(1, courseIdField.getText());
-            stmt.setString(2, titleField.getText());
-            stmt.setInt(3, Integer.parseInt(creditHoursField.getText()));
-            stmt.setString(4, departmentField.getText());
-            stmt.setString(5, prerequisitesField.getText());
-            stmt.setInt(6, Integer.parseInt(maxEnrollmentField.getText()));
+        String title = titleField.getText();
+        int credits = Integer.parseInt(creditsField.getText());
 
+        String query = "INSERT INTO courses (title, credits) VALUES (?, ?)";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, title);
+            stmt.setInt(2, credits);
             stmt.executeUpdate();
-            showAlert("Success", "Course added successfully!");
-        } catch (SQLException e) {
+            loadCourses();
+        } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @FXML
-    private void updateCourse() {
-        try {
-            String query = "UPDATE courses SET title=?, credit_hours=?, department=?, prerequisites=?, max_enrollment=? WHERE course_id=?";
-            PreparedStatement stmt = connection.prepareStatement(query);
-            stmt.setString(1, titleField.getText());
-            stmt.setInt(2, Integer.parseInt(creditHoursField.getText()));
-            stmt.setString(3, departmentField.getText());
-            stmt.setString(4, prerequisitesField.getText());
-            stmt.setInt(5, Integer.parseInt(maxEnrollmentField.getText()));
-            stmt.setString(6, courseIdField.getText());
-
-            stmt.executeUpdate();
-            showAlert("Success", "Course updated successfully!");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void deleteCourse() {
-        try {
-            String query = "DELETE FROM courses WHERE course_id=?";
-            PreparedStatement stmt = connection.prepareStatement(query);
-            stmt.setString(1, courseIdField.getText());
-
-            stmt.executeUpdate();
-            showAlert("Success", "Course deleted successfully!");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void clearFields() {
-        courseIdField.clear();
-        titleField.clear();
-        creditHoursField.clear();
-        departmentField.clear();
-        prerequisitesField.clear();
-        maxEnrollmentField.clear();
-    }
-
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }

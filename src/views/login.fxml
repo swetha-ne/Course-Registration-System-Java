@@ -6,7 +6,6 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Label alignment="CENTER" layoutX="142.0" layoutY="44.0" prefHeight="33.0" prefWidth="315.0" text="Course Registration System">
@@ -26,7 +25,7 @@
       </Label>
       <TextField layoutX="152.0" layoutY="124.0" prefHeight="34.0" prefWidth="295.0" />
       <TextField layoutX="153.0" layoutY="209.0" prefHeight="34.0" prefWidth="295.0" />
-      <Button layoutX="154.0" layoutY="273.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="295.0" style="-fx-background-color: #ea38ff; -fx-background-radius: 8; -fx-effect: ;" text="Login" textFill="WHITE">
+      <Button layoutX="154.0" layoutY="273.0" mnemonicParsing="false" onAction="#login" prefHeight="41.0" prefWidth="295.0" style="-fx-background-color: #ea38ff; -fx-background-radius: 8; -fx-effect: ;" text="Login" textFill="WHITE">
          <font>
             <Font name="Arial Bold" size="15.0" />
          </font>
